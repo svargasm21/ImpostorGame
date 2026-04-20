@@ -445,6 +445,28 @@
   </div>
 </div>
 
+<!-- SCREEN: PRE-ROUND COUNTDOWN -->
+<div class="screen" id="screen-preround">
+  <div class="card" style="text-align:center; padding:40px 20px; gap:20px; display:flex; flex-direction:column; align-items:center;">
+    <div class="card-title" style="margin:0;" id="preround-round-label">Ronda 1</div>
+    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Empieza</div>
+    <div style="font-size:26px; font-weight:800; color:var(--text);" id="preround-starter"></div>
+    <div class="countdown" id="preround-num">5</div>
+    <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace;">Prepárense para ver su rol</div>
+  </div>
+</div>
+
+<!-- SCREEN: PRE-ROUND COUNTDOWN -->
+<div class="screen" id="screen-preround">
+  <div class="card" style="text-align:center; padding:40px 20px; gap:20px; display:flex; flex-direction:column; align-items:center;">
+    <div class="card-title" style="margin:0;" id="preround-round-label">Ronda 1</div>
+    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Empieza</div>
+    <div style="font-size:26px; font-weight:800; color:var(--text);" id="preround-starter"></div>
+    <div class="countdown" id="preround-num">5</div>
+    <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace;">Prepárense para ver su rol</div>
+  </div>
+</div>
+
 <!-- SCREEN: COUNTING -->
 <div class="screen" id="screen-counting">
   <div class="card" style="text-align:center; padding:40px 20px; gap:16px; display:flex; flex-direction:column; align-items:center;">
@@ -572,7 +594,7 @@ socket.on('error', msg => {
 });
 
 // ROUND START - all players participate (reset eliminations)
-socket.on('roundStart', ({ round, totalRounds, role, secret, players }) => {
+socket.on('roundStart', ({ round, totalRounds, role, secret, players, starterName }) => {
   hasPlayedGame = true;
   wordUpdated = false;
   currentRole = role;
@@ -603,7 +625,21 @@ socket.on('roundStart', ({ round, totalRounds, role, secret, players }) => {
   $('vote-progress').textContent = 'Esperando votos...';
   $('eliminated-banner').style.display = 'none';
 
-  showScreen('screen-playing');
+  // Show pre-round countdown before revealing roles
+  $('preround-round-label').textContent = `Ronda ${round}/${totalRounds}`;
+  $('preround-starter').textContent = starterName || '';
+  showScreen('screen-preround');
+  let n = 5;
+  $('preround-num').textContent = n;
+  const preroundIv = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      clearInterval(preroundIv);
+      showScreen('screen-playing');
+    } else {
+      $('preround-num').textContent = n;
+    }
+  }, 1000);
 });
 
 $('role-container').onclick = () => {

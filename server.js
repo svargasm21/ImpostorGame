@@ -69,6 +69,11 @@ function startRound() {
   votes = {};
   gameState = 'playing';
 
+  // Pick a random starter (not the impostor)
+  const nonImpostors = allPlayers.filter(id => id !== impostorId);
+  const starterId = nonImpostors[Math.floor(Math.random() * nonImpostors.length)];
+  const starterName = players[starterId]?.name || '';
+
   // Send each player their role privately
   allPlayers.forEach(id => {
     const isImpostor = id === impostorId;
@@ -77,7 +82,8 @@ function startRound() {
       totalRounds: rounds.length,
       role: isImpostor ? 'impostor' : 'inocente',
       secret: isImpostor ? round.hint : round.word,
-      players: allPlayers.map(pid => ({ id: pid, name: players[pid].name }))
+      players: allPlayers.map(pid => ({ id: pid, name: players[pid].name })),
+      starterName
     });
   });
 }
