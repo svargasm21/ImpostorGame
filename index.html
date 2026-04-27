@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>El Impostor</title>
-<script src="/socket.io/socket.io.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -37,7 +36,6 @@
     overflow-x: hidden;
   }
 
-  /* HEADER */
   .header {
     width: 100%;
     padding: 20px 20px 0;
@@ -62,11 +60,9 @@
     background-clip: text;
   }
 
-  /* SCREENS */
   .screen { display: none; width: 100%; max-width: 480px; padding: 24px 20px; flex: 1; }
   .screen.active { display: flex; flex-direction: column; gap: 16px; }
 
-  /* CARDS */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -82,7 +78,6 @@
     margin-bottom: 12px;
   }
 
-  /* INPUTS */
   input[type="text"] {
     width: 100%;
     background: var(--surface2);
@@ -99,7 +94,6 @@
   input[type="text"]:focus { border-color: var(--accent); }
   input[type="text"]::placeholder { color: var(--muted); }
 
-  /* BUTTONS */
   .btn {
     width: 100%;
     padding: 16px;
@@ -113,26 +107,12 @@
     letter-spacing: 0.02em;
   }
   .btn:active { transform: scale(0.97); }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-purple {
-    background: var(--accent2);
-    color: white;
-  }
-  .btn-success {
-    background: var(--green);
-    color: white;
-  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-purple { background: var(--accent2); color: white; }
+  .btn-success { background: var(--green); color: white; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* PLAYERS LIST */
   .player-item {
     display: flex;
     align-items: center;
@@ -144,23 +124,22 @@
   .player-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
-    background: var(--muted);
+    background: var(--green);
     margin-right: 12px;
     flex-shrink: 0;
   }
-  .player-dot.ready { background: var(--green); }
   .player-name-text { font-size: 15px; font-weight: 700; }
-  .badge {
+  .player-meta {
+    font-size: 11px;
+    color: var(--muted);
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.05em;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
   }
-  .badge-ready { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge-waiting { background: rgba(107,107,138,0.15); color: var(--muted); }
 
-  /* ROLE CARD (slider) */
   .role-container {
     position: relative;
     overflow: hidden;
@@ -181,15 +160,7 @@
     min-height: 220px;
     justify-content: center;
   }
-  .role-front .eye-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-  }
-  .role-front .hint-text {
-    font-size: 13px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
+  .role-front .hint-text { font-size: 13px; color: var(--muted); font-family: 'Space Mono', monospace; }
   .role-reveal {
     position: absolute;
     inset: 0;
@@ -215,11 +186,7 @@
   }
   .role-label.impostor { color: var(--accent); }
   .role-label.inocente { color: #60a5fa; }
-  .role-big {
-    font-size: 38px;
-    font-weight: 800;
-    letter-spacing: -1px;
-  }
+  .role-big { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
   .role-secret-label {
     font-size: 11px;
     font-family: 'Space Mono', monospace;
@@ -227,23 +194,15 @@
     text-transform: uppercase;
     letter-spacing: 0.2em;
   }
-  .role-secret-word {
-    font-size: 28px;
-    font-weight: 800;
-    text-align: center;
-  }
+  .role-secret-word { font-size: 28px; font-weight: 800; text-align: center; }
   .role-secret-word.impostor { color: var(--accent); }
   .role-secret-word.inocente { color: #93c5fd; }
-  .swipe-arrow {
-    font-size: 24px;
-    animation: bounce 1.5s infinite;
-  }
+  .swipe-arrow { font-size: 24px; animation: bounce 1.5s infinite; }
   @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
   }
 
-  /* VOTING */
   .vote-item {
     display: flex;
     align-items: center;
@@ -258,7 +217,6 @@
   }
   .vote-item:active { opacity: 0.8; }
   .vote-item.selected { border-color: var(--accent); background: rgba(232,67,147,0.08); }
-  .vote-item.selected .vote-check { background: var(--accent); }
   .vote-check {
     width: 22px; height: 22px;
     border-radius: 50%;
@@ -266,25 +224,11 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 12px;
     transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
   }
-  .vote-item.selected .vote-check { border-color: var(--accent); }
+  .vote-item.selected .vote-check { background: var(--accent); border-color: var(--accent); }
 
-  /* RESULT / COUNTDOWN */
-  .countdown {
-    font-size: 72px;
-    font-weight: 800;
-    text-align: center;
-    color: var(--accent);
-    font-family: 'Space Mono', monospace;
-    animation: pulse 0.9s infinite;
-  }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-  .result-big {
-    font-size: 64px;
-    text-align: center;
-    line-height: 1;
-  }
+  .result-big { font-size: 64px; text-align: center; line-height: 1; }
   .result-label {
     text-align: center;
     font-size: 14px;
@@ -293,12 +237,7 @@
     letter-spacing: 0.1em;
     margin-top: 8px;
   }
-  .result-name {
-    font-size: 28px;
-    font-weight: 800;
-    text-align: center;
-    letter-spacing: -0.5px;
-  }
+  .result-name { font-size: 28px; font-weight: 800; text-align: center; letter-spacing: -0.5px; }
   .result-word-reveal {
     background: var(--surface2);
     border-radius: 12px;
@@ -309,7 +248,6 @@
   .result-word-reveal .lbl { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 0.2em; margin-bottom: 4px; }
   .result-word-reveal .wrd { font-size: 22px; font-weight: 800; }
 
-  /* ROUND INFO */
   .round-info {
     display: flex;
     align-items: center;
@@ -326,14 +264,6 @@
     border: 1px solid var(--border);
   }
 
-  .vote-progress {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    padding: 8px;
-  }
-
   .error-msg {
     background: rgba(239,68,68,0.1);
     border: 1px solid rgba(239,68,68,0.3);
@@ -346,27 +276,31 @@
   }
   .error-msg.show { display: block; }
 
-  .separator {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'Space Mono', monospace;
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--red);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    flex-shrink: 0;
+    line-height: 1;
+    border-radius: 6px;
+    transition: background 0.15s;
   }
-  .separator::before, .separator::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  .remove-btn:active { background: rgba(239,68,68,0.15); }
 
-  /* READY TOGGLE */
-  .ready-toggle {
-    display: flex;
-    gap: 10px;
+  .info-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    text-align: center;
+    line-height: 1.5;
   }
-  .ready-toggle .btn { flex: 1; }
 </style>
 </head>
 <body>
@@ -376,54 +310,40 @@
   <div class="title">El Impostor</div>
 </div>
 
-<!-- SCREEN: JOIN / LOBBY -->
-<div class="screen active" id="screen-join">
-
+<!-- SCREEN: LOBBY / REGISTRO -->
+<div class="screen active" id="screen-lobby">
   <div class="card">
-    <div class="card-title">Tu perfil</div>
-    <input type="text" id="input-name" placeholder="Tu nombre" maxlength="20">
-    <input type="text" id="input-word" placeholder="Palabra para el juego" maxlength="30">
-    <input type="text" id="input-hint" placeholder="Pista para el impostor" maxlength="40">
+    <div class="card-title">Registrar jugador</div>
+    <input type="text" id="input-name" placeholder="Nombre del jugador" maxlength="20" autocomplete="off">
+    <input type="text" id="input-word" placeholder="Palabra para el juego" maxlength="30" autocomplete="off">
+    <input type="text" id="input-hint" placeholder="Pista para el impostor" maxlength="40" autocomplete="off">
     <div class="error-msg" id="join-error"></div>
-    <button class="btn btn-primary" id="btn-join">Unirse al juego</button>
+    <button class="btn btn-primary" id="btn-add-player">Agregar jugador</button>
   </div>
 
-  <!-- Lobby (hidden until joined) -->
-  <div id="lobby-section" style="display:none; flex-direction:column; gap:16px;">
-    <div class="separator">sala de espera</div>
-
-    <div class="card">
-      <div class="card-title">Jugadores <span id="player-count" style="color:var(--accent)">0</span></div>
-      <div id="players-list"></div>
-    </div>
-
-    <div class="ready-toggle" id="ready-controls">
-      <button class="btn btn-secondary" id="btn-not-ready">No listo</button>
-      <button class="btn btn-success" id="btn-ready">¡Listo!</button>
-    </div>
-
-    <div id="start-section" style="display:none;">
-      <button class="btn btn-purple" id="btn-start">Iniciar juego</button>
-    </div>
-
-    <div class="error-msg" id="lobby-error"></div>
+  <div class="card" id="players-card" style="display:none;">
+    <div class="card-title">Jugadores registrados <span id="player-count" style="color:var(--accent)">0</span></div>
+    <div id="players-list"></div>
   </div>
+
+  <div class="error-msg" id="start-error"></div>
+  <button class="btn btn-purple" id="btn-start-game" style="display:none;">Iniciar juego \u2192</button>
+  <div class="info-box" id="min-players-note" style="display:none;">Se necesitan al menos 3 jugadores para iniciar</div>
 </div>
 
-<!-- SCREEN: PLAYING (role reveal + voting) -->
-<div class="screen" id="screen-playing">
-
-  <div class="round-info">
-    <div class="round-badge" id="round-label">Ronda 1</div>
-    <div class="round-badge" id="votes-label">Votos: 0/0</div>
+<!-- SCREEN: REVELACION DE ROLES -->
+<div class="screen" id="screen-roles">
+  <div class="card" style="text-align:center; gap:6px; display:flex; flex-direction:column;">
+    <div class="card-title" style="margin:0;">Pasa el dispositivo a</div>
+    <div style="font-size:28px; font-weight:800;" id="role-player-name"></div>
+    <div style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace;" id="role-turn-counter"></div>
   </div>
 
-  <!-- Role reveal card -->
   <div class="role-container" id="role-container">
     <div class="role-front">
-      <div class="swipe-arrow">👆</div>
+      <div class="swipe-arrow">\ud83d\udc46</div>
       <div class="hint-text">Toca para ver tu rol</div>
-      <div style="font-size:13px; color:var(--muted); margin-top:8px;">Solo tú puedes verlo</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:8px;">Solo \xfa puedes verlo</div>
     </div>
     <div class="role-reveal" id="role-reveal">
       <div class="role-label" id="role-label-text"></div>
@@ -433,360 +353,461 @@
     </div>
   </div>
 
-  <!-- Voting -->
+  <button class="btn btn-secondary" id="btn-hide-role" style="display:none;">Ocultar rol</button>
+  <button class="btn btn-primary" id="btn-next-player" disabled>Siguiente jugador \u2192</button>
+</div>
+
+<!-- SCREEN: DISCUSION -->
+<div class="screen" id="screen-discussion">
+  <div class="card" style="text-align:center; padding:32px 20px; gap:16px; display:flex; flex-direction:column; align-items:center;">
+    <div class="card-title" style="margin:0;" id="discussion-round-label">Ronda 1/1</div>
+    <div style="font-size:48px;">\ud83d\udde3\ufe0f</div>
+    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Comienza la discusi\xf3n</div>
+    <div style="font-size:28px; font-weight:800; color:var(--accent);" id="discussion-starter"></div>
+    <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.5;">
+      Hablen entre todos e intenten descubrir al impostor
+    </div>
+  </div>
+  <button class="btn btn-primary" id="btn-go-vote">Votar \u2192</button>
+</div>
+
+<!-- SCREEN: VOTACION -->
+<div class="screen" id="screen-voting">
+  <div class="round-info">
+    <div class="round-badge" id="vote-round-label">Ronda 1/1</div>
+    <div class="round-badge" id="vote-progress-label">Voto 1/0</div>
+  </div>
+
+  <div class="card" style="text-align:center; gap:4px; display:flex; flex-direction:column;">
+    <div class="card-title" style="margin:0;">Turno de votar</div>
+    <div style="font-size:26px; font-weight:800;" id="voter-name"></div>
+    <div style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace;">Pasa el dispositivo a esta persona</div>
+  </div>
+
   <div class="card">
     <div class="card-title">Vota al sospechoso</div>
-    <div id="eliminated-banner" style="display:none; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:10px; padding:12px 16px; font-size:14px; font-family:'Space Mono',monospace; margin-bottom:12px; text-align:center;">
-      Fuiste eliminado en esta ronda. Espera al resultado...
-    </div>
     <div id="vote-list"></div>
-    <div class="vote-progress" id="vote-progress">Esperando votos...</div>
-    <button class="btn btn-primary" id="btn-vote" style="margin-top:8px;" disabled>Confirmar voto</button>
+    <button class="btn btn-primary" id="btn-confirm-vote" disabled style="margin-top:8px;">Confirmar voto</button>
   </div>
 </div>
 
-<!-- SCREEN: PRE-ROUND COUNTDOWN -->
-<div class="screen" id="screen-preround">
-  <div class="card" style="text-align:center; padding:40px 20px; gap:20px; display:flex; flex-direction:column; align-items:center;">
-    <div class="card-title" style="margin:0;" id="preround-round-label">Ronda 1</div>
-    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Empieza</div>
-    <div style="font-size:26px; font-weight:800; color:var(--text);" id="preround-starter"></div>
-    <div class="countdown" id="preround-num">5</div>
-    <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace;">Prepárense para ver su rol</div>
-  </div>
-</div>
-
-<!-- SCREEN: PRE-ROUND COUNTDOWN -->
-<div class="screen" id="screen-preround">
-  <div class="card" style="text-align:center; padding:40px 20px; gap:20px; display:flex; flex-direction:column; align-items:center;">
-    <div class="card-title" style="margin:0;" id="preround-round-label">Ronda 1</div>
-    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Empieza</div>
-    <div style="font-size:26px; font-weight:800; color:var(--text);" id="preround-starter"></div>
-    <div class="countdown" id="preround-num">5</div>
-    <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace;">Prepárense para ver su rol</div>
-  </div>
-</div>
-
-<!-- SCREEN: COUNTING -->
-<div class="screen" id="screen-counting">
-  <div class="card" style="text-align:center; padding:40px 20px; gap:16px; display:flex; flex-direction:column; align-items:center;">
-    <div class="card-title" style="margin:0;">Contando votos...</div>
-    <div class="countdown" id="countdown-num">3</div>
-    <div style="font-size:14px; color:var(--muted);">El resultado está por revelarse</div>
-  </div>
-</div>
-
-<!-- SCREEN: ROUND RESULT -->
+<!-- SCREEN: RESULTADO -->
 <div class="screen" id="screen-result">
   <div class="card" style="text-align:center; padding:32px 20px; gap:12px; display:flex; flex-direction:column; align-items:center;">
     <div class="result-big" id="result-emoji"></div>
     <div class="result-name" id="result-name"></div>
     <div class="result-label" id="result-label"></div>
-
     <div class="result-word-reveal" id="result-word-box" style="display:none; width:100%;">
       <div class="lbl">La palabra era</div>
       <div class="wrd" id="result-word"></div>
       <div class="lbl" style="margin-top:8px;">La pista era</div>
       <div class="wrd" id="result-hint" style="color:var(--accent)"></div>
     </div>
-
-    <div style="font-size:14px; color:var(--muted); font-family: 'Space Mono', monospace;" id="result-next"></div>
+    <button class="btn btn-primary" id="btn-result-action" style="margin-top:8px; width:100%;"></button>
   </div>
 </div>
 
 <script>
-const socket = io();
-let myId = null;
-let myName = '';
-let myVote = null;
+// ============ GAME STATE ============
+let players = [];
+let rounds = [];
+let currentRound = 0;
+let impostorId = null;
+let starterName = "";
+let roundEliminated = [];
+let votes = {};
+
+let roleRevealIndex = 0;
 let roleRevealed = false;
-let currentRole = null;
-let currentPlayers = [];
-let amEliminated = false;
-let hasPlayedGame = false;
-let wordUpdated = false;
 
-// Elements
+let voteIndex = 0;
+let currentVoterVote = null;
+
+// ============ UTILS ============
 const $ = id => document.getElementById(id);
+
 const showScreen = id => {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $(id).classList.add('active');
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0, 0);
 };
 
-// JOIN
-$('btn-join').onclick = () => {
-  const name = $('input-name').value.trim();
-  const word = $('input-word').value.trim();
-  const hint = $('input-hint').value.trim();
-  const err = $('join-error');
-  if (!name || !word || !hint) {
-    err.textContent = 'Completa los tres campos.';
-    err.classList.add('show');
-    return;
-  }
-  err.classList.remove('show');
-  myName = name;
-  socket.emit('join', { name, word, hint });
-  $('input-name').disabled = true;
-  $('input-word').disabled = true;
-  $('input-hint').disabled = true;
-  $('btn-join').disabled = true;
-  // Re-enable ready button after submitting word
-  $('btn-ready').disabled = false;
-  $('btn-ready').style.opacity = '1';
-  wordUpdated = true;
-  document.getElementById('lobby-section').style.display = 'flex';
-};
+function escHtml(str) {
+  return String(str).replace(/[&<>"\']/g, m =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+}
 
-$('btn-ready').onclick = () => socket.emit('setReady', true);
-$('btn-not-ready').onclick = () => socket.emit('setReady', false);
-$('btn-start').onclick = () => {
-  socket.emit('startGame');
-  $('lobby-error').classList.remove('show');
-};
+function genId() {
+  return Math.random().toString(36).slice(2, 11);
+}
 
-socket.on('connect', () => { myId = socket.id; });
+// ============ LOBBY ============
+function renderPlayers() {
+  const list = $("players-list");
+  const card = $("players-card");
+  const count = $("player-count");
+  const startBtn = $("btn-start-game");
+  const note = $("min-players-note");
 
-socket.on('lobbyUpdate', ({ players, gameState }) => {
-  const list = $('players-list');
-  const count = $('player-count');
   count.textContent = players.length;
+  card.style.display = players.length > 0 ? "block" : "none";
+
+  if (players.length === 0) {
+    startBtn.style.display = "none";
+    note.style.display = "none";
+  } else if (players.length < 3) {
+    startBtn.style.display = "none";
+    note.style.display = "block";
+  } else {
+    startBtn.style.display = "block";
+    note.style.display = "none";
+  }
 
   list.innerHTML = players.map(p =>
     `<div class="player-item">
-      <div style="display:flex;align-items:center;">
-        <div class="player-dot ${p.ready ? 'ready' : ''}"></div>
-        <div class="player-name-text">${escHtml(p.name)}</div>
+      <div style="display:flex;align-items:center;flex:1;min-width:0;">
+        <div class="player-dot"></div>
+        <div style="min-width:0;">
+          <div class="player-name-text">${escHtml(p.name)}</div>
+          <div class="player-meta">Palabra: ${escHtml(p.word)} \xb7 Pista: ${escHtml(p.hint)}</div>
+        </div>
       </div>
-      <span class="badge ${p.ready ? 'badge-ready' : 'badge-waiting'}">${p.ready ? 'LISTO' : 'ESPERA'}</span>
+      <button class="remove-btn" data-id="${escHtml(p.id)}" aria-label="Eliminar jugador">\u2715</button>
     </div>`
-  ).join('');
+  ).join("");
 
-  const me = players.find(p => p.id === myId);
-  if (me) {
-    $('start-section').style.display = players[0]?.id === myId ? 'block' : 'none';
+  list.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      players = players.filter(p => p.id !== btn.dataset.id);
+      renderPlayers();
+    });
+  });
+}
+
+$("btn-add-player").addEventListener("click", () => {
+  const name = $("input-name").value.trim();
+  const word = $("input-word").value.trim();
+  const hint = $("input-hint").value.trim();
+  const err = $("join-error");
+
+  if (!name || !word || !hint) { showError(err, "Completa los tres campos."); return; }
+  if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    showError(err, "Ya existe un jugador con ese nombre."); return;
   }
 
-  if (gameState === 'lobby') {
-    showScreen('screen-join');
-    amEliminated = false;
-    if (me) {
-      document.getElementById('lobby-section').style.display = 'flex';
-      if (hasPlayedGame && !wordUpdated) {
-        // After a game: force new word/hint
-        $('input-word').disabled = false;
-        $('input-hint').disabled = false;
-        $('input-word').value = '';
-        $('input-hint').value = '';
-        $('btn-join').textContent = 'Actualizar palabra';
-        $('btn-join').disabled = false;
-        $('btn-ready').disabled = true;
-        $('btn-ready').style.opacity = '0.4';
-      }
-    }
+  err.classList.remove("show");
+  players.push({ id: genId(), name, word, hint });
+  $("input-name").value = "";
+  $("input-word").value = "";
+  $("input-hint").value = "";
+  $("input-name").focus();
+  renderPlayers();
+});
+
+["input-name", "input-word", "input-hint"].forEach(id => {
+  $(id).addEventListener("keydown", e => { if (e.key === "Enter") $("btn-add-player").click(); });
+});
+
+$("btn-start-game").addEventListener("click", () => {
+  const err = $("start-error");
+  if (players.length < 3) { showError(err, "Se necesitan al menos 3 jugadores."); return; }
+  err.classList.remove("show");
+  startGame();
+});
+
+function showError(el, msg) { el.textContent = msg; el.classList.add("show"); }
+
+// ============ GAME SETUP ============
+function buildRounds() {
+  rounds = players.map(p => ({ word: p.word, hint: p.hint, authorId: p.id }));
+  for (let i = rounds.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rounds[i], rounds[j]] = [rounds[j], rounds[i]];
   }
-});
+}
 
-socket.on('error', msg => {
-  const err = $('lobby-error');
-  err.textContent = msg;
-  err.classList.add('show');
-});
+function startGame() {
+  currentRound = 0;
+  roundEliminated = [];
+  buildRounds();
+  startRound();
+}
 
-// ROUND START - all players participate (reset eliminations)
-socket.on('roundStart', ({ round, totalRounds, role, secret, players, starterName }) => {
-  hasPlayedGame = true;
-  wordUpdated = false;
-  currentRole = role;
-  currentPlayers = players;
-  myVote = null;
+function getActivePlayers() {
+  return players.filter(p => !roundEliminated.includes(p.id));
+}
+
+function startRound() {
+  if (currentRound >= rounds.length) { goToLobby(); return; }
+
+  const round = rounds[currentRound];
+  roundEliminated = [];
+  votes = {};
+
+  const eligible = players.filter(p => p.id !== round.authorId);
+  const pool = eligible.length > 0 ? eligible : players;
+  impostorId = pool[Math.floor(Math.random() * pool.length)].id;
+
+  const nonImpostors = players.filter(p => p.id !== impostorId);
+  const starter = nonImpostors[Math.floor(Math.random() * nonImpostors.length)];
+  starterName = starter ? starter.name : players[0].name;
+
+  startRoleReveal();
+}
+
+// ============ ROLE REVEAL ============
+function startRoleReveal() {
+  roleRevealIndex = 0;
+  showRoleForCurrent();
+}
+
+function showRoleForCurrent() {
+  const player = players[roleRevealIndex];
   roleRevealed = false;
-  amEliminated = false;
 
-  $('round-label').textContent = `Ronda ${round}/${totalRounds}`;
-  $('votes-label').textContent = `Votos: 0/${players.length}`;
+  const round = rounds[currentRound];
+  const isImpostor = player.id === impostorId;
+  const role = isImpostor ? "impostor" : "inocente";
+  const secret = isImpostor ? round.hint : round.word;
 
-  // Setup role reveal
-  const reveal = $('role-reveal');
+  $("role-player-name").textContent = player.name;
+  $("role-turn-counter").textContent = `Jugador ${roleRevealIndex + 1} de ${players.length}`;
+
+  const reveal = $("role-reveal");
   reveal.className = `role-reveal ${role}`;
-  $('role-label-text').className = `role-label ${role}`;
-  $('role-label-text').textContent = role === 'impostor' ? '⚠ ERES EL IMPOSTOR' : '✓ ERES INOCENTE';
-  $('role-emoji').textContent = role === 'impostor' ? '🎭' : '🕵️';
-  $('role-secret-label').textContent = role === 'impostor' ? 'Tu pista es:' : 'La palabra es:';
-  $('role-secret-word').className = `role-secret-word ${role}`;
-  $('role-secret-word').textContent = secret;
-  reveal.classList.remove('shown');
+  reveal.classList.remove("shown");
 
-  // Build vote list (exclude self)
-  buildVoteList(players.filter(p => p.id !== myId));
+  $("role-label-text").className = `role-label ${role}`;
+  $("role-label-text").textContent = isImpostor ? "\u26a0 ERES EL IMPOSTOR" : "\u2713 ERES INOCENTE";
+  $("role-emoji").textContent = isImpostor ? "\ud83c\udfa d" : "\ud83d\udd75\ufe0f";
+  $("role-secret-label").textContent = isImpostor ? "Tu pista es:" : "La palabra es:";
+  $("role-secret-word").className = `role-secret-word ${role}`;
+  $("role-secret-word").textContent = secret;
 
-  $('btn-vote').disabled = true;
-  $('btn-vote').style.display = 'block';
-  $('vote-progress').textContent = 'Esperando votos...';
-  $('eliminated-banner').style.display = 'none';
+  $("btn-hide-role").style.display = "none";
+  $("btn-next-player").disabled = true;
+  $("btn-next-player").textContent =
+    roleRevealIndex === players.length - 1 ? "Empezar discusi\xf3n \u2192" : "Siguiente jugador \u2192";
 
-  // Show pre-round countdown before revealing roles
-  $('preround-round-label').textContent = `Ronda ${round}/${totalRounds}`;
-  $('preround-starter').textContent = starterName || '';
-  showScreen('screen-preround');
-  let n = 5;
-  $('preround-num').textContent = n;
-  const preroundIv = setInterval(() => {
-    n--;
-    if (n <= 0) {
-      clearInterval(preroundIv);
-      showScreen('screen-playing');
-    } else {
-      $('preround-num').textContent = n;
-    }
-  }, 1000);
+  showScreen("screen-roles");
+}
+
+$("role-container").addEventListener("click", () => {
+  roleRevealed = !roleRevealed;
+  const reveal = $("role-reveal");
+  if (roleRevealed) {
+    reveal.classList.add("shown");
+    $("btn-hide-role").style.display = "block";
+    $("btn-next-player").disabled = false;
+  } else {
+    reveal.classList.remove("shown");
+    $("btn-hide-role").style.display = "none";
+  }
 });
 
-$('role-container').onclick = () => {
-  roleRevealed = !roleRevealed;
-  const reveal = $('role-reveal');
-  if (roleRevealed) reveal.classList.add('shown');
-  else reveal.classList.remove('shown');
-};
+$("btn-hide-role").addEventListener("click", () => {
+  roleRevealed = false;
+  $("role-reveal").classList.remove("shown");
+  $("btn-hide-role").style.display = "none";
+});
 
-function buildVoteList(players) {
-  const list = $('vote-list');
-  let html = players.map(p =>
-    `<div class="vote-item" data-id="${escHtml(p.id)}" onclick="selectVote('${escHtml(p.id)}')">
+$("btn-next-player").addEventListener("click", () => {
+  $("role-reveal").classList.remove("shown");
+  roleRevealed = false;
+  $("btn-hide-role").style.display = "none";
+  roleRevealIndex++;
+  if (roleRevealIndex >= players.length) {
+    showDiscussion();
+  } else {
+    showRoleForCurrent();
+  }
+});
+
+// ============ DISCUSSION ============
+function showDiscussion() {
+  $("discussion-round-label").textContent = `Ronda ${currentRound + 1}/${rounds.length}`;
+  $("discussion-starter").textContent = starterName;
+  showScreen("screen-discussion");
+}
+
+$("btn-go-vote").addEventListener("click", () => { startVotingPhase(); });
+
+// ============ VOTING ============
+function startVotingPhase() { votes = {}; voteIndex = 0; advanceToNextVoter(); }
+function startRevoting() { votes = {}; voteIndex = 0; advanceToNextVoter(); }
+
+function advanceToNextVoter() {
+  const active = getActivePlayers();
+  while (voteIndex < players.length && !active.find(p => p.id === players[voteIndex].id)) {
+    voteIndex++;
+  }
+  if (voteIndex >= players.length) { processVoteResult(); return; }
+
+  const voter = players[voteIndex];
+  currentVoterVote = null;
+
+  const votedSoFar = Object.keys(votes).length;
+  $("vote-round-label").textContent = `Ronda ${currentRound + 1}/${rounds.length}`;
+  $("vote-progress-label").textContent = `Voto ${votedSoFar + 1}/${active.length}`;
+  $("voter-name").textContent = voter.name;
+
+  buildVoteList(active.filter(p => p.id !== voter.id));
+  $("btn-confirm-vote").disabled = true;
+  showScreen("screen-voting");
+}
+
+function buildVoteList(votablePlayers) {
+  const list = $("vote-list");
+  let html = votablePlayers.map(p =>
+    `<div class="vote-item" data-id="${escHtml(p.id)}">
       <span style="font-weight:700;font-size:15px;">${escHtml(p.name)}</span>
-      <div class="vote-check" id="vc-${escHtml(p.id)}"></div>
+      <div class="vote-check"></div>
     </div>`
-  ).join('');
-  // Blank vote option
-  html += `<div class="vote-item" data-id="blank" onclick="selectVote('blank')" style="border-style:dashed;">
-    <span style="font-weight:700;font-size:15px;color:var(--muted);">🚫 Voto en blanco</span>
-    <div class="vote-check" id="vc-blank"></div>
+  ).join("");
+  html += `<div class="vote-item" data-id="blank" style="border-style:dashed;">
+    <span style="font-weight:700;font-size:15px;color:var(--muted);">\ud83d\udeab Voto en blanco</span>
+    <div class="vote-check"></div>
   </div>`;
   list.innerHTML = html;
+  list.querySelectorAll(".vote-item").forEach(item => {
+    item.addEventListener("click", () => selectVote(item.dataset.id));
+  });
 }
 
-window.selectVote = (id) => {
-  myVote = id;
-  document.querySelectorAll('.vote-item').forEach(el => el.classList.remove('selected'));
-  document.querySelector(`.vote-item[data-id="${id}"]`)?.classList.add('selected');
-  $('btn-vote').disabled = false;
-};
+function selectVote(id) {
+  currentVoterVote = id;
+  document.querySelectorAll(".vote-item").forEach(el => el.classList.remove("selected"));
+  document.querySelector(`.vote-item[data-id="${id}"]`).classList.add("selected");
+  $("btn-confirm-vote").disabled = false;
+}
 
-socket.on('activePlayers', (players) => {
-  currentPlayers = players;
+$("btn-confirm-vote").addEventListener("click", () => {
+  if (!currentVoterVote) return;
+  votes[players[voteIndex].id] = currentVoterVote;
+  voteIndex++;
+  advanceToNextVoter();
 });
 
-// Continue voting within the same round (after an innocent is eliminated)
-socket.on('continueVoting', ({ players }) => {
-  currentPlayers = players;
-  myVote = null;
+// ============ TALLY ============
+function tallyVotes() {
+  const tally = {};
+  Object.values(votes).forEach(targetId => {
+    if (targetId === "blank") return;
+    tally[targetId] = (tally[targetId] || 0) + 1;
+  });
 
-  if (amEliminated) {
-    // This player was eliminated this round - show waiting screen
-    $('eliminated-banner').style.display = 'block';
-    $('vote-list').innerHTML = '';
-    $('btn-vote').style.display = 'none';
-    $('vote-progress').textContent = 'Fuiste eliminado esta ronda. Esperando resultado...';
+  let maxVotes = 0, votedOut = null, isTie = false;
+  Object.entries(tally).forEach(([id, count]) => {
+    if (count > maxVotes) { maxVotes = count; votedOut = id; isTie = false; }
+    else if (count === maxVotes) { isTie = true; }
+  });
+
+  return (maxVotes === 0 || isTie) ? null : votedOut;
+}
+
+function processVoteResult() {
+  const votedOut = tallyVotes();
+  const round = rounds[currentRound];
+
+  if (votedOut === null) {
+    showResult({ type: "tie", message: "Empate o todos votaron en blanco. \xa1Voten de nuevo!" });
+    return;
+  }
+
+  const wasImpostor = votedOut === impostorId;
+  const votedOutPlayer = players.find(p => p.id === votedOut);
+  const impostorPlayer = players.find(p => p.id === impostorId);
+
+  if (wasImpostor) {
+    const hasMoreRounds = (currentRound + 1) < rounds.length;
+    showResult({ type: "impostorCaught", votedOutName: votedOutPlayer ? votedOutPlayer.name : "", impostorName: impostorPlayer ? impostorPlayer.name : "", word: round.word, hint: round.hint, hasMoreRounds });
+    currentRound++;
   } else {
-    $('eliminated-banner').style.display = 'none';
-    buildVoteList(players.filter(p => p.id !== myId));
-    $('btn-vote').style.display = 'block';
-    $('btn-vote').disabled = true;
-    $('vote-progress').textContent = 'Un inocente fue eliminado. ¡Voten de nuevo!';
-  }
-  $('votes-label').textContent = `Votos: 0/${players.length}`;
-  showScreen('screen-playing');
-});
+    roundEliminated.push(votedOut);
+    const remaining = getActivePlayers();
+    const impostorWins = remaining.length <= 2 && remaining.some(p => p.id === impostorId);
 
-$('btn-vote').onclick = () => {
-  if (!myVote) return;
-  socket.emit('vote', myVote);
-  $('btn-vote').disabled = true;
-  document.querySelectorAll('.vote-item').forEach(el => el.style.pointerEvents = 'none');
-};
-
-socket.on('voteUpdate', ({ voteCount, total }) => {
-  $('votes-label').textContent = `Votos: ${voteCount}/${total}`;
-  $('vote-progress').textContent = `${voteCount} de ${total} han votado`;
-  if (voteCount === total) {
-    $('vote-progress').textContent = '¡Todos han votado! Contando...';
-    showScreen('screen-counting');
-    startCountdown();
-  }
-});
-
-function startCountdown() {
-  let n = 3;
-  $('countdown-num').textContent = n;
-  const iv = setInterval(() => {
-    n--;
-    if (n <= 0) { clearInterval(iv); return; }
-    $('countdown-num').textContent = n;
-  }, 900);
-}
-
-socket.on('roundResult', (data) => {
-  setTimeout(() => showResult(data), 3200);
-});
-
-function showResult(data) {
-  showScreen('screen-result');
-
-  if (data.type === 'tie') {
-    $('result-emoji').textContent = '🤷';
-    $('result-name').textContent = '¡Empate!';
-    $('result-name').style.color = 'var(--yellow)';
-    $('result-label').textContent = data.message;
-    $('result-word-box').style.display = 'none';
-    $('result-next').textContent = 'Revotación en unos segundos...';
-    return;
-  }
-
-  if (data.type === 'impostorCaught') {
-    $('result-emoji').textContent = '🎉';
-    $('result-name').textContent = data.votedOutName;
-    $('result-name').style.color = 'var(--green)';
-    $('result-label').textContent = '¡Era el impostor! Los inocentes ganan esta ronda';
-    $('result-word-box').style.display = 'block';
-    $('result-word').textContent = data.word || '';
-    $('result-hint').textContent = data.hint || '';
-    $('result-next').textContent = data.hasMoreRounds
-      ? 'Siguiente ronda en unos segundos...'
-      : '¡Partida terminada! Volviendo al lobby...';
-    return;
-  }
-
-  if (data.type === 'impostorWins') {
-    $('result-emoji').textContent = '🎭';
-    $('result-name').textContent = data.impostorName + ' era el impostor';
-    $('result-name').style.color = 'var(--accent)';
-    $('result-label').textContent = `¡El impostor gana esta ronda! ${data.votedOutName} era inocente`;
-    $('result-word-box').style.display = 'block';
-    $('result-word').textContent = data.word || '';
-    $('result-hint').textContent = data.hint || '';
-    $('result-next').textContent = data.hasMoreRounds
-      ? 'Siguiente ronda en unos segundos...'
-      : '¡Partida terminada! Volviendo al lobby...';
-    return;
-  }
-
-  if (data.type === 'innocentOut') {
-    // Check if I was the one voted out
-    if (data.votedOutId === myId) {
-      amEliminated = true;
+    if (impostorWins) {
+      const hasMoreRounds = (currentRound + 1) < rounds.length;
+      showResult({ type: "impostorWins", votedOutName: votedOutPlayer ? votedOutPlayer.name : "", impostorName: impostorPlayer ? impostorPlayer.name : "", word: round.word, hint: round.hint, hasMoreRounds });
+      currentRound++;
+    } else {
+      showResult({ type: "innocentOut", votedOutName: votedOutPlayer ? votedOutPlayer.name : "" });
     }
-    $('result-emoji').textContent = '😬';
-    $('result-name').textContent = data.votedOutName;
-    $('result-name').style.color = 'var(--yellow)';
-    $('result-label').textContent = '¡Era inocente! El impostor sigue libre...';
-    $('result-word-box').style.display = 'none';
-    $('result-next').textContent = 'Nueva votación en unos segundos...';
   }
 }
 
-function escHtml(str) {
-  return String(str).replace(/[&<>"']/g, m =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+// ============ RESULT ============
+function showResult(data) {
+  showScreen("screen-result");
+  const actionBtn = $("btn-result-action");
+
+  if (data.type === "tie") {
+    $("result-emoji").textContent = "\ud83e\udd37";
+    $("result-name").textContent = "\xa1Empate!";
+    $("result-name").style.color = "var(--yellow)";
+    $("result-label").textContent = data.message;
+    $("result-word-box").style.display = "none";
+    actionBtn.textContent = "Votar de nuevo \u2192";
+    actionBtn.onclick = () => startRevoting();
+    return;
+  }
+
+  if (data.type === "impostorCaught") {
+    $("result-emoji").textContent = "\ud83c\udf89";
+    $("result-name").textContent = data.votedOutName;
+    $("result-name").style.color = "var(--green)";
+    $("result-label").textContent = "\xa1Era el impostor! Los inocentes ganan esta ronda";
+    $("result-word-box").style.display = "block";
+    $("result-word").textContent = data.word || "";
+    $("result-hint").textContent = data.hint || "";
+    if (data.hasMoreRounds) {
+      actionBtn.textContent = "Siguiente ronda \u2192";
+      actionBtn.onclick = () => startRound();
+    } else {
+      actionBtn.textContent = "Volver al lobby";
+      actionBtn.onclick = () => goToLobby();
+    }
+    return;
+  }
+
+  if (data.type === "impostorWins") {
+    $("result-emoji").textContent = "\ud83c\udfa d";
+    $("result-name").textContent = `${data.impostorName} era el impostor`;
+    $("result-name").style.color = "var(--accent)";
+    $("result-label").textContent = `\xa1El impostor gana esta ronda! ${data.votedOutName} era inocente`;
+    $("result-word-box").style.display = "block";
+    $("result-word").textContent = data.word || "";
+    $("result-hint").textContent = data.hint || "";
+    if (data.hasMoreRounds) {
+      actionBtn.textContent = "Siguiente ronda \u2192";
+      actionBtn.onclick = () => startRound();
+    } else {
+      actionBtn.textContent = "Volver al lobby";
+      actionBtn.onclick = () => goToLobby();
+    }
+    return;
+  }
+
+  if (data.type === "innocentOut") {
+    $("result-emoji").textContent = "\ud83d\ude2c";
+    $("result-name").textContent = data.votedOutName;
+    $("result-name").style.color = "var(--yellow)";
+    $("result-label").textContent = "\xa1Era inocente! El impostor sigue libre...";
+    $("result-word-box").style.display = "none";
+    actionBtn.textContent = "Continuar votaci\xf3n \u2192";
+    actionBtn.onclick = () => startRevoting();
+  }
+}
+
+// ============ LOBBY RESET ============
+function goToLobby() {
+  players = []; rounds = []; currentRound = 0; impostorId = null;
+  starterName = ""; votes = {}; roundEliminated = []; roleRevealIndex = 0;
+  $("input-name").value = ""; $("input-word").value = ""; $("input-hint").value = "";
+  $("join-error").classList.remove("show"); $("start-error").classList.remove("show");
+  renderPlayers();
+  showScreen("screen-lobby");
 }
 </script>
 </body>
