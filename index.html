@@ -579,7 +579,7 @@ function showRoleForCurrent() {
 
   $("role-label-text").className = `role-label ${role}`;
   $("role-label-text").textContent = isImpostor ? "\u26a0 ERES EL IMPOSTOR" : "\u2713 ERES INOCENTE";
-  $("role-emoji").textContent = isImpostor ? "\ud83c\udfa d" : "\ud83d\udd75\ufe0f";
+  $("role-emoji").textContent = isImpostor ? "\ud83c\udfad" : "\ud83d\udd75\ufe0f";
   $("role-secret-label").textContent = isImpostor ? "Tu pista es:" : "La palabra es:";
   $("role-secret-word").className = `role-secret-word ${role}`;
   $("role-secret-word").textContent = secret;
@@ -772,7 +772,7 @@ function showResult(data) {
   }
 
   if (data.type === "impostorWins") {
-    $("result-emoji").textContent = "\ud83c\udfa d";
+    $("result-emoji").textContent = "\ud83c\udfad";
     $("result-name").textContent = `${data.impostorName} era el impostor`;
     $("result-name").style.color = "var(--accent)";
     $("result-label").textContent = `\xa1El impostor gana esta ronda! ${data.votedOutName} era inocente`;
