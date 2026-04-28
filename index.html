@@ -327,21 +327,22 @@
   </div>
 
   <div class="error-msg" id="start-error"></div>
-  <button class="btn btn-purple" id="btn-start-game" style="display:none;">Iniciar juego \u2192</button>
+  <button class="btn btn-purple" id="btn-start-game" style="display:none;">Iniciar juego →</button>
   <div class="info-box" id="min-players-note" style="display:none;">Se necesitan al menos 3 jugadores para iniciar</div>
 </div>
 
 <!-- SCREEN: REVELACION DE ROLES -->
 <div class="screen" id="screen-roles">
   <div class="card" style="text-align:center; gap:6px; display:flex; flex-direction:column;">
-    <div class="card-title" style="margin:0;">Pasa el dispositivo a</div>
+    <div style="font-size:13px; font-family:'Space Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:0.2em; margin-bottom:2px;">Turno de</div>
     <div style="font-size:28px; font-weight:800;" id="role-player-name"></div>
     <div style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace;" id="role-turn-counter"></div>
+    <div id="role-header-revealed" style="display:none; margin-top:4px; font-size:14px; font-family:'Space Mono',monospace; font-weight:700; letter-spacing:0.15em;"></div>
   </div>
 
   <div class="role-container" id="role-container">
     <div class="role-front">
-      <div class="swipe-arrow">\ud83d\udc46</div>
+      <div class="swipe-arrow">👆</div>
       <div class="hint-text">Toca para ver tu rol</div>
       <div style="font-size:13px; color:var(--muted); margin-top:8px;">Solo \xfa puedes verlo</div>
     </div>
@@ -354,21 +355,21 @@
   </div>
 
   <button class="btn btn-secondary" id="btn-hide-role" style="display:none;">Ocultar rol</button>
-  <button class="btn btn-primary" id="btn-next-player" disabled>Siguiente jugador \u2192</button>
+  <button class="btn btn-primary" id="btn-next-player" disabled>Siguiente jugador →</button>
 </div>
 
 <!-- SCREEN: DISCUSION -->
 <div class="screen" id="screen-discussion">
   <div class="card" style="text-align:center; padding:32px 20px; gap:16px; display:flex; flex-direction:column; align-items:center;">
     <div class="card-title" style="margin:0;" id="discussion-round-label">Ronda 1/1</div>
-    <div style="font-size:48px;">\ud83d\udde3\ufe0f</div>
-    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Comienza la discusi\xf3n</div>
+    <div style="font-size:48px;">🗣️</div>
+    <div style="font-size:15px; color:var(--muted); font-family:'Space Mono',monospace;">Comienza la discusión</div>
     <div style="font-size:28px; font-weight:800; color:var(--accent);" id="discussion-starter"></div>
     <div style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace; line-height:1.5;">
       Hablen entre todos e intenten descubrir al impostor
     </div>
   </div>
-  <button class="btn btn-primary" id="btn-go-vote">Votar \u2192</button>
+  <button class="btn btn-primary" id="btn-go-vote">Votar →</button>
 </div>
 
 <!-- SCREEN: VOTACION -->
@@ -469,7 +470,7 @@ function renderPlayers() {
         <div class="player-dot"></div>
         <div style="min-width:0;">
           <div class="player-name-text">${escHtml(p.name)}</div>
-          <div class="player-meta">Palabra: ${escHtml(p.word)} \xb7 Pista: ${escHtml(p.hint)}</div>
+          <div class="player-meta">✓ Registrado</div>
         </div>
       </div>
       <button class="remove-btn" data-id="${escHtml(p.id)}" aria-label="Eliminar jugador">\u2715</button>
@@ -564,6 +565,7 @@ function startRoleReveal() {
 function showRoleForCurrent() {
   const player = players[roleRevealIndex];
   roleRevealed = false;
+  $("role-header-revealed").style.display = "none";
 
   const round = rounds[currentRound];
   const isImpostor = player.id === impostorId;
@@ -599,9 +601,15 @@ $("role-container").addEventListener("click", () => {
     reveal.classList.add("shown");
     $("btn-hide-role").style.display = "block";
     $("btn-next-player").disabled = false;
+    const isImpostor = players[roleRevealIndex].id === impostorId;
+    const headerRevealed = $("role-header-revealed");
+    headerRevealed.style.display = "block";
+    headerRevealed.style.color = isImpostor ? "var(--accent)" : "#60a5fa";
+    headerRevealed.textContent = isImpostor ? "⚠ IMPOSTOR" : "✓ INOCENTE";
   } else {
     reveal.classList.remove("shown");
     $("btn-hide-role").style.display = "none";
+    $("role-header-revealed").style.display = "none";
   }
 });
 
@@ -609,6 +617,7 @@ $("btn-hide-role").addEventListener("click", () => {
   roleRevealed = false;
   $("role-reveal").classList.remove("shown");
   $("btn-hide-role").style.display = "none";
+  $("role-header-revealed").style.display = "none";
 });
 
 $("btn-next-player").addEventListener("click", () => {
@@ -748,8 +757,14 @@ function showResult(data) {
     $("result-name").style.color = "var(--yellow)";
     $("result-label").textContent = data.message;
     $("result-word-box").style.display = "none";
-    actionBtn.textContent = "Votar de nuevo \u2192";
-    actionBtn.onclick = () => startRevoting();
+    const hasMoreRoundsTie = (currentRound + 1) < rounds.length;
+    if (hasMoreRoundsTie) {
+      actionBtn.textContent = "Siguiente ronda →";
+      actionBtn.onclick = () => { currentRound++; startRound(); };
+    } else {
+      actionBtn.textContent = "Volver al lobby";
+      actionBtn.onclick = () => goToLobby();
+    }
     return;
   }
 
@@ -795,8 +810,14 @@ function showResult(data) {
     $("result-name").style.color = "var(--yellow)";
     $("result-label").textContent = "\xa1Era inocente! El impostor sigue libre...";
     $("result-word-box").style.display = "none";
-    actionBtn.textContent = "Continuar votaci\xf3n \u2192";
-    actionBtn.onclick = () => startRevoting();
+    const hasMoreRoundsInnocent = (currentRound + 1) < rounds.length;
+    if (hasMoreRoundsInnocent) {
+      actionBtn.textContent = "Siguiente ronda →";
+      actionBtn.onclick = () => { currentRound++; startRound(); };
+    } else {
+      actionBtn.textContent = "Volver al lobby";
+      actionBtn.onclick = () => goToLobby();
+    }
   }
 }
 
