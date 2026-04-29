@@ -376,13 +376,6 @@
 <div class="screen" id="screen-voting">
   <div class="round-info">
     <div class="round-badge" id="vote-round-label">Ronda 1/1</div>
-    <div class="round-badge" id="vote-progress-label">Voto 1/0</div>
-  </div>
-
-  <div class="card" style="text-align:center; gap:4px; display:flex; flex-direction:column;">
-    <div class="card-title" style="margin:0;">Turno de votar</div>
-    <div style="font-size:26px; font-weight:800;" id="voter-name"></div>
-    <div style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace;">Pasa el dispositivo a esta persona</div>
   </div>
 
   <div class="card">
@@ -416,12 +409,9 @@ let currentRound = 0;
 let impostorId = null;
 let starterName = "";
 let roundEliminated = [];
-let votes = {};
-
 let roleRevealIndex = 0;
 let roleRevealed = false;
 
-let voteIndex = 0;
 let currentVoterVote = null;
 
 // ============ UTILS ============
@@ -543,7 +533,6 @@ function startRound() {
 
   const round = rounds[currentRound];
   roundEliminated = [];
-  votes = {};
 
   const eligible = players.filter(p => p.id !== round.authorId);
   const pool = eligible.length > 0 ? eligible : players;
@@ -642,25 +631,11 @@ function showDiscussion() {
 $("btn-go-vote").addEventListener("click", () => { startVotingPhase(); });
 
 // ============ VOTING ============
-function startVotingPhase() { votes = {}; voteIndex = 0; advanceToNextVoter(); }
-function startRevoting() { votes = {}; voteIndex = 0; advanceToNextVoter(); }
-
-function advanceToNextVoter() {
-  const active = getActivePlayers();
-  while (voteIndex < players.length && !active.find(p => p.id === players[voteIndex].id)) {
-    voteIndex++;
-  }
-  if (voteIndex >= players.length) { processVoteResult(); return; }
-
-  const voter = players[voteIndex];
+function startVotingPhase() {
   currentVoterVote = null;
-
-  const votedSoFar = Object.keys(votes).length;
+  const active = getActivePlayers();
   $("vote-round-label").textContent = `Ronda ${currentRound + 1}/${rounds.length}`;
-  $("vote-progress-label").textContent = `Voto ${votedSoFar + 1}/${active.length}`;
-  $("voter-name").textContent = voter.name;
-
-  buildVoteList(active.filter(p => p.id !== voter.id));
+  buildVoteList(active);
   $("btn-confirm-vote").disabled = true;
   showScreen("screen-voting");
 }
@@ -692,34 +667,16 @@ function selectVote(id) {
 
 $("btn-confirm-vote").addEventListener("click", () => {
   if (!currentVoterVote) return;
-  votes[players[voteIndex].id] = currentVoterVote;
-  voteIndex++;
-  advanceToNextVoter();
+  processVoteResult();
 });
 
 // ============ TALLY ============
-function tallyVotes() {
-  const tally = {};
-  Object.values(votes).forEach(targetId => {
-    if (targetId === "blank") return;
-    tally[targetId] = (tally[targetId] || 0) + 1;
-  });
-
-  let maxVotes = 0, votedOut = null, isTie = false;
-  Object.entries(tally).forEach(([id, count]) => {
-    if (count > maxVotes) { maxVotes = count; votedOut = id; isTie = false; }
-    else if (count === maxVotes) { isTie = true; }
-  });
-
-  return (maxVotes === 0 || isTie) ? null : votedOut;
-}
-
 function processVoteResult() {
-  const votedOut = tallyVotes();
+  const votedOut = (currentVoterVote && currentVoterVote !== "blank") ? currentVoterVote : null;
   const round = rounds[currentRound];
 
   if (votedOut === null) {
-    showResult({ type: "tie", message: "Empate o todos votaron en blanco. \xa1Voten de nuevo!" });
+    showResult({ type: "tie", message: "Voto en blanco. ¡Vuelvan a votar!" });
     return;
   }
 
@@ -753,18 +710,12 @@ function showResult(data) {
 
   if (data.type === "tie") {
     $("result-emoji").textContent = "\ud83e\udd37";
-    $("result-name").textContent = "\xa1Empate!";
+    $("result-name").textContent = "Voto en blanco";
     $("result-name").style.color = "var(--yellow)";
     $("result-label").textContent = data.message;
     $("result-word-box").style.display = "none";
-    const hasMoreRoundsTie = (currentRound + 1) < rounds.length;
-    if (hasMoreRoundsTie) {
-      actionBtn.textContent = "Siguiente ronda →";
-      actionBtn.onclick = () => { currentRound++; startRound(); };
-    } else {
-      actionBtn.textContent = "Volver al lobby";
-      actionBtn.onclick = () => goToLobby();
-    }
+    actionBtn.textContent = "Votar de nuevo →";
+    actionBtn.onclick = () => startVotingPhase();
     return;
   }
 
@@ -824,7 +775,7 @@ function showResult(data) {
 // ============ LOBBY RESET ============
 function goToLobby() {
   players = []; rounds = []; currentRound = 0; impostorId = null;
-  starterName = ""; votes = {}; roundEliminated = []; roleRevealIndex = 0;
+  starterName = ""; roundEliminated = []; roleRevealIndex = 0;
   $("input-name").value = ""; $("input-word").value = ""; $("input-hint").value = "";
   $("join-error").classList.remove("show"); $("start-error").classList.remove("show");
   renderPlayers();
